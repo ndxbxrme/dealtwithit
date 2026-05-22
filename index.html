@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tidy Encourager</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: white;
+      text-align: center;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .app {
+      width: min(92vw, 420px);
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    .stats {
+      font-size: 1.3rem;
+      margin: 1.5rem 0;
+      line-height: 1.6;
+    }
+    .big {
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      border: none;
+      background: #4ade80;
+      color: #052e16;
+      font-size: 1.6rem;
+      font-weight: 800;
+      box-shadow: 0 10px 30px #0008;
+      margin: 1rem;
+    }
+    .controls button {
+      font-size: 1.1rem;
+      padding: 0.9rem 1.2rem;
+      margin: 0.4rem;
+      border-radius: 999px;
+      border: none;
+      font-weight: 700;
+    }
+    .start { background: #60a5fa; }
+    .stop { background: #f87171; }
+    .message {
+      margin-top: 1.4rem;
+      font-size: 1.25rem;
+      min-height: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Tidy Boost</h1>
+
+    <div class="controls">
+      <button class="start" onclick="start()">Start</button>
+      <button class="stop" onclick="stop()">Stop</button>
+    </div>
+
+    <button class="big" onclick="dealWithIt()">Dealt with it</button>
+
+    <div class="stats">
+      <div>Items dealt with: <strong id="count">0</strong></div>
+      <div>Rate: <strong id="rate">0</strong> items/hour</div>
+      <div>Time: <strong id="time">00:00</strong></div>
+    </div>
+
+    <div class="message" id="message">Press Start and begin.</div>
+  </div>
+
+  <script>
+    let running = false;
+    let startTime = null;
+    let elapsedBefore = 0;
+    let count = 0;
+    let timer = null;
+
+    const messages = [
+      "Nice. Future you says thanks.",
+      "That’s one less thing shouting at you.",
+      "You’re building momentum.",
+      "Tiny win. Real progress.",
+      "Dealt with. Gone. Done.",
+      "Look at you making the place lighter.",
+      "Another one bites the dust."
+    ];
+
+    function start() {
+      if (running) return;
+      running = true;
+      startTime = Date.now();
+      document.getElementById("message").textContent = "You’ve started. Just one thing at a time.";
+      timer = setInterval(updateStats, 500);
+    }
+
+    function stop() {
+      if (!running) return;
+      elapsedBefore += Date.now() - startTime;
+      running = false;
+      clearInterval(timer);
+      updateStats();
+      document.getElementById("message").textContent = "Paused. Progress still counts.";
+    }
+
+    function dealWithIt() {
+      if (!running) start();
+      count++;
+      document.getElementById("count").textContent = count;
+      document.getElementById("message").textContent =
+        messages[Math.floor(Math.random() * messages.length)];
+      updateStats();
+    }
+
+    function getElapsedMs() {
+      return elapsedBefore + (running ? Date.now() - startTime : 0);
+    }
+
+    function updateStats() {
+      const elapsedMs = getElapsedMs();
+      const elapsedHours = elapsedMs / 1000 / 60 / 60;
+      const rate = elapsedHours > 0 ? Math.round(count / elapsedHours) : 0;
+
+      const totalSeconds = Math.floor(elapsedMs / 1000);
+      const mins = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+      const secs = String(totalSeconds % 60).padStart(2, "0");
+
+      document.getElementById("rate").textContent = rate;
+      document.getElementById("time").textContent = `${mins}:${secs}`;
+    }
+  </script>
+</body>
+</html>
